@@ -13,10 +13,17 @@ const defaultStatusResponseMessage: Record<StatusResponseCode | number, string> 
     405: "Method Not Allowed",
 }
 
-export default <FData>(statusCode: StatusResponseCode | number, message?: string, data?: FData) => {
+type GenerateAPIResponseStatusCodeParams = StatusResponseCode | number
+
+type GenerateAPIResponseOptionParams<TAPIResponseData> = {
+    message?: string,
+    data?: TAPIResponseData
+}
+
+export default <TData>(statusCode: GenerateAPIResponseStatusCodeParams, params?: GenerateAPIResponseOptionParams<TData>) => {
     return {
         statusCode,
-        message: message || defaultStatusResponseMessage[statusCode] || 'OK',
-        data
+        message: params?.message || defaultStatusResponseMessage[statusCode] || 'OK',
+        data: params?.data
     }
 }
