@@ -16,25 +16,17 @@ const defaultStatusResponseMessage: Record<StatusResponseCode | number, string> 
 }
 
 
-interface GenerateAPIResponseOptionParams<TAPIResponseData> {
-    statusCode?: StatusResponseCode | number
-    message?: string
-    data?: TAPIResponseData
-    errors?: Record<string, string>[]
+type NullableResponseData<T> = T extends unknown ? undefined : T
+
+type GenerateAPIResponseOptions<TResponseData> = {
+    statusCode?: GenerateAPIResponseStatusCodeParams,
+    message?: string,
+    data?: TResponseData
 }
 
-export default <TData>(
-    event: H3Event,
-    params?: GenerateAPIResponseOptionParams<TData>
-) => {
-    setResponseStatus(
-        event,
-        params?.statusCode || 200,
-        params?.message || defaultStatusResponseMessage[params?.statusCode || 200]
-    )
-
-    return {
-        data: params?.data ? params.data : undefined,
-        errors: !params?.data && params?.errors ? params.errors : undefined
-    }
+const generateApiResponse = <TResponseData>(event: H3Event, options?: GenerateAPIResponseOptions<TResponseData>): { data: TResponseData } | undefined => {
+    setResponseStatus(event, options?.statusCode || 200, defaultStatusResponseMessage[options?.statusCode || 200])
+    return options?.data ? { data: options.data } : undefined
 }
+
+export default generateApiResponse
