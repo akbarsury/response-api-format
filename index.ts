@@ -20,7 +20,7 @@ interface GenerateAPIResponseOptionParams<TAPIResponseData> {
     statusCode?: StatusResponseCode | number
     message?: string
     data?: TAPIResponseData
-    errors?: Record<string, string>[]
+    errors?: Record<string, string>
 }
 
 export default <TData>(
