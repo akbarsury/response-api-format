@@ -1,7 +1,10 @@
-import type { H3Event } from 'h3';
-type StatusResponseCode = 200 | 201 | 202 | 204 | 400 | 401 | 402 | 403 | 404 | 405
+import type { H3Event, StatusCode } from 'h3';
+type ResponseCodeSuccess = Extract<StatusCode, 200 | 201 | 202 | 204>
+type ResponseCodeClientError = Extract<StatusCode, 400 | 401 | 402 | 403 | 404 | 405>
+type ResponseCodeInternalError = Extract<StatusCode, 500>
+type StatusResponseCode = ResponseCodeSuccess | ResponseCodeClientError | ResponseCodeInternalError
 
-const defaultStatusResponseMessage: Record<StatusResponseCode | number, string> = {
+const defaultStatusResponseMessage: Record<StatusResponseCode, string> = {
     200: "OK",
     201: "Created",
     202: "Accepted",
@@ -15,26 +18,32 @@ const defaultStatusResponseMessage: Record<StatusResponseCode | number, string> 
     500: "Internal Server Error",
 }
 
-
-interface GenerateAPIResponseOptionParams<TAPIResponseData> {
-    statusCode?: StatusResponseCode | number
+type GenerateAPIResponseOptionParams<TAPIResponseCode, TAPIResponseData> = {
+    statusCode?: TAPIResponseCode
     message?: string
     data?: TAPIResponseData
     errors?: Record<string, string>
 }
 
-export default <TData>(
+const generateApiResponse = <TResponseCode extends StatusResponseCode = 200, TData = undefined>(
     event: H3Event,
-    params?: GenerateAPIResponseOptionParams<TData>
-) => {
+    params: GenerateAPIResponseOptionParams<TResponseCode, TData> = {
+        data: undefined
+    }
+    // ): TResponseCode extends ResponseCodeInternalError ? null : TResponseCode extends ResponseCodeClientError ? null : TData => {
+): { errors: Record<string, string> | undefined, data: TData | undefined } => {
     setResponseStatus(
         event,
         params?.statusCode || 200,
-        params?.message || defaultStatusResponseMessage[params?.statusCode || 200]
+        params?.message || defaultStatusResponseMessage[params.statusCode || 200]
     )
 
     return {
-        data: params?.data ? params.data : undefined,
+        data: params?.data && ((!params?.statusCode) || params?.statusCode && params?.statusCode >= 200 && params?.statusCode < 400) ? params.data : undefined,
         errors: !params?.data && params?.errors ? params.errors : undefined
+        // data: params?.data ? params.data : undefined
+        // errors: !params?.data && params?.errors ? params.errors : undefined
     }
 }
+
+export { generateApiResponse, generateApiResponse as default }
