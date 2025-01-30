@@ -1,0 +1,12 @@
+{
+  "name": "generate-api-response",
+  "version": "1.0.0",
+  "description": "My nuxt server util generate-api-response",
+  "author": {
+    "name": "Aly Akbar Al Mutsana",
+    "url": "https://github.com/akbarsury"
+  },
+  "repository": "github:akbarsury/nuxt-generate-api-response",
+  "license": "Apache-2.0",
+  "main": "src/index.ts"
+}
